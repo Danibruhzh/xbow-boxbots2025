@@ -5,16 +5,16 @@
 
 class ServoControl {
 private:
-  Servo servo1;
-  Servo servo2;
+  Servo servox;
+  Servo servoy;
   int pin1;
   int pin2;
 
 public:
   ServoControl(int servoPin1, int servoPin2);
   void begin();
-  void setServo1Angle(int angle);
-  void setServo2Angle(int angle);
+  void setServoxAngle(int angle);
+  void setServoyAngle(int angle);
   void sweep(int servoNumber);
 };
 

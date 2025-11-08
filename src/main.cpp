@@ -13,10 +13,14 @@ WebServer server(80);
 // Store latest gyro data
 float alpha = 0;
 float beta = 0;
+float xangle_prev = 0;
+float yangle_prev = 0;
+float xchange = 0;
+float ychange = 0;
 unsigned long lastUpdate = 0;
 
 // Create servo controller object
-// ServoControl servoController(18, 19); // pins 18 and 19
+ServoControl servoController(18, 19); // pins 18 and 19
 
 void handleOrientationData() {
     if (server.hasArg("plain")) {
@@ -38,6 +42,8 @@ void handleOrientationData() {
         if (doc.containsKey("alpha") && doc.containsKey("beta")) {
             alpha = doc["alpha"];
             beta = doc["beta"];
+            // xchange = alpha - xangle_prev;
+            // ychange = beta - yangle_prev;
             lastUpdate = millis();
             
             Serial.printf("✅ Orientation - Alpha: %.2f°, Beta: %.2f°\n", alpha, beta);
@@ -68,7 +74,7 @@ void handleOptions() {
 void setup()
 {
   Serial.begin(115200);
-  // servoController.begin();
+  servoController.begin();
   Serial.println("ESP32 Ready");
 
   // Connect to WiFi
@@ -115,6 +121,16 @@ void loop() {
 
     // HERE: Use alpha and beta to control your servos
     // Example:
-    // servoController.setServo1Angle(map(alpha, 0, 360, 0, 180));
-    // servoController.setServo2Angle(map(beta, -90, 90, 0, 180));
+    // if (millis() - lastUpdate < 2000) { // Only if receiving recent data
+    //     int servoXAngle = map(alpha, 0, 360, 0, 180);
+    //     int servoYAngle = map(beta, -90, 90, 40, 140);
+        
+    //     servoController.setServoxAngle(servoXAngle);
+    //     servoController.setServoyAngle(servoYAngle);
+    // }
+    servoController.setServoxAngle(xangle_prev);
+    servoController.setServoyAngle(yangle_prev);
+    xangle_prev += 1;
+    yangle_prev += 1;
+    delay(1000);
 }
