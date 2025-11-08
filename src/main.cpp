@@ -1,18 +1,24 @@
 #include <Arduino.h>
+#include <ESP32Servo.h>
+#include "servo.h"
 
-// put function declarations here:
-int myFunction(int, int);
+// Create servo controller object
+ServoControl servoController(18, 19);  // pins 18 and 19
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(115200);
+  servoController.begin();
+  Serial.println("ESP32 Ready");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  // Example usage
+  servoController.setServo1Angle(90);
+  delay(1000);
+  
+  servoController.setServo2Angle(45);
+  delay(1000);
+  
+  servoController.sweep(1);  // Sweep servo 1
+  delay(500);
 }
