@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <body style="text-align:center; font-family:sans-serif">
+    <h2>Servo Control</h2>
+    <input type="range" id="servoSlider" min="0" max="180" value="90" />
+    <p>Angle: <span id="angleValue">90</span>°</p>
+    
+    <script>
+      const slider = document.getElementById('servoSlider');
+      const display = document.getElementById('angleValue');
+      const esp32IP = "192.168.1.42"; // replace with your ESP32's IP
+
+      slider.oninput = function() {
+        display.textContent = this.value;
+        fetch(`http://${esp32IP}/servo?angle=${this.value}`);
+      };
+    </script>
+  </body>
+</html>
