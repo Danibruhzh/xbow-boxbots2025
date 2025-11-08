@@ -13,33 +13,28 @@ void ServoControl::begin() {
   ESP32PWM::allocateTimer(3);
   
   // Attach servos
-  servo1.attach(pin1, 500, 2400);
-  servo2.attach(pin2, 500, 2400);
+  servox.attach(pin1, 500, 2400);
+  servoy.attach(pin2, 956, 1988); // ±50° from center
+
   
   Serial.println("Servo control initialized");
 }
 
-void ServoControl::setServo1Angle(int angle) {
+void ServoControl::setServoxAngle(int angle) {
   angle = constrain(angle, 0, 180);
-  servo1.write(angle);
+  servox.write(angle);
 }
 
-void ServoControl::setServo2Angle(int angle) {
+void ServoControl::setServoyAngle(int angle) {
   angle = constrain(angle, 0, 180);
-  servo2.write(angle);
+  servoy.write(angle);
 }
 
 void ServoControl::sweep(int servoNumber) {
-  Servo* targetServo = (servoNumber == 1) ? &servo1 : &servo2;
+  Servo* targetServo = (servoNumber == 1) ? &servox : &servoy;
   
   // Sweep forward
   for (int pos = 0; pos <= 180; pos += 1) {
-    targetServo->write(pos);
-    delay(15);
-  }
-  
-  // Sweep back
-  for (int pos = 180; pos >= 0; pos -= 1) {
     targetServo->write(pos);
     delay(15);
   }
