@@ -5,8 +5,8 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
 
-const char *ssid = "DanielZh";
-const char *password = "googoogaga1";
+const char *ssid = "[wifi-network]";
+const char *password = "[wifi-password]";
 
 WebServer server(80);
 
@@ -18,8 +18,8 @@ float yangle_prev = 0;
 float xchange = 0;
 float ychange = 0;
 unsigned long lastUpdate = 0;
-int updateInterval = 100; // start with 120 ms
-const int minInterval = 75;
+int updateInterval = 120; // start with 120 ms
+const int minInterval = 100;
 const int maxInterval = 200;
 
 // Create servo controller object

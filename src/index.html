@@ -112,7 +112,7 @@
         let successCount = 0;
         let failCount = 0;
         let lastSendTime = 0;
-        const SEND_DELAY = 100;
+        const SEND_DELAY = 120;
         let lastAlpha = 0;
         let lastBeta = 0;
 
@@ -161,7 +161,7 @@
             const beta = event.beta || 0;
 
             // Skip sending if movement is very small
-            if (Math.abs(alpha - lastAlpha) < 0.3 && Math.abs(beta - lastBeta) < 0.3) {
+            if (Math.abs(alpha - lastAlpha) < 1 && Math.abs(beta - lastBeta) < 1) {
                 return;
             }
 

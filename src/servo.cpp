@@ -40,17 +40,17 @@ void ServoControl::setServoySpeed(int speed)
 void ServoControl::findXSpeed(int angle)
 {
   if (angle > 0)
-    servox.writeMicroseconds(1495 - angle / 0.06);
+    servox.writeMicroseconds(1535 + angle / 0.10);
   else
-    servox.writeMicroseconds(1535 - angle / 0.06);
+    servox.writeMicroseconds(1495 + angle / 0.10);
 }
 
 void ServoControl::findYSpeed(int angle)
 {
   if (angle > 0)
-    servoy.writeMicroseconds(1475 - angle / 0.06);
+    servoy.writeMicroseconds(1535 + angle / 0.20);
   else
-    servoy.writeMicroseconds(1535 - angle / 0.06);
+    servoy.writeMicroseconds(1475 + angle / 0.20);
 }
 
 void ServoControl::fireTrigger()
