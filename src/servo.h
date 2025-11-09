@@ -9,13 +9,21 @@ private:
   Servo servoy;
   int pin1;
   int pin2;
+  
+  int currentSpeedX = 1510;   // current servo X speed
+  int targetSpeedX = 1510;    // target speed based on angle
+  unsigned long lastMoveTimeX = 0; // last time we updated servo
 
 public:
   ServoControl(int servoPin1, int servoPin2);
   void begin();
-  void setServoxAngle(int angle);
-  void setServoyAngle(int angle);
-  void sweep(int servoNumber);
+  void setServoxSpeed(int micro);
+  void setServoySpeed(int micro);
+  void setServoxRead();
+  void servoxOneDegree();
+  void servoyOneDegree();
+  void findXSpeed(int angle);
+  void updateServos();
 };
 
 #endif

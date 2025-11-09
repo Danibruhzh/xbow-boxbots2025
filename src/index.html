@@ -138,19 +138,19 @@
         }
 
         function handleOrientation(event) {
-            const alpha = event.alpha || 0;
-            const beta = event.beta || 0;
-            
-            updateFieldIfNotNull('Orientation_a', alpha);
-            updateFieldIfNotNull('Orientation_b', beta);
-            incrementEventCount();
-
             // Rate limiting: only send if enough time has passed
             const now = Date.now();
             if (now - lastSendTime < SEND_DELAY) {
                 return; // Skip this event
             }
             lastSendTime = now;
+
+            const alpha = event.alpha || 0;
+            const beta = event.beta || 0;
+            
+            updateFieldIfNotNull('Orientation_a', alpha);
+            updateFieldIfNotNull('Orientation_b', beta);
+            incrementEventCount();
 
             // Send orientation to Flask server (which forwards to ESP32)
             fetch('/gyro', {  // Relative URL - automatically uses your ngrok domain
