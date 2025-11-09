@@ -1,23 +1,9 @@
+#include <WiFi.h>
+#include <WebServer.h>
+#include <Servo.h>
 #include <Arduino.h>
 #include <ESP32Servo.h>
 #include "servo.h"
-#include <WiFi.h>
-#include <WebServer.h>
-#include <ArduinoJson.h>
-
-const char *ssid = "DanielZh";
-const char *password = "googoogaga1";
-
-WebServer server(80);
-
-// Store latest gyro data
-float alpha = 0;
-float beta = 0;
-float xangle_prev = 0;
-float yangle_prev = 0;
-float xchange = 0;
-float ychange = 0;
-unsigned long lastUpdate = 0;
 
 // Create servo controller object
 ServoControl servoController(18, 19); // pins 18 and 19

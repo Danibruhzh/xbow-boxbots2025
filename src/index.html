@@ -3,97 +3,22 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESP32 Orientation Control</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            text-align: center;
-            background: #1a1a1a;
-            color: white;
-            margin: 0;
-        }
-
-        h1 {
-            color: #4CAF50;
-        }
-
-        .status {
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
-            font-size: 18px;
-        }
-
-        .tracking {
-            background: #16355a;
-        }
-
-        .connected {
-            background: #2d5016;
-        }
-
-        .error {
-            background: #5a1616;
-        }
-
-        .data {
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-            font-family: monospace;
-            font-size: 20px;
-        }
-
-        button {
-            padding: 20px 40px;
-            font-size: 20px;
-            border: none;
-            border-radius: 10px;
-            background: #4CAF50;
-            color: white;
-            cursor: pointer;
-            margin: 10px;
-        }
-
-        button.stop {
-            background: #f44336;
-        }
-
-        .value {
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        .log {
-            background: #1a1a1a;
-            border: 1px solid #333;
-            padding: 10px;
-            margin: 20px 0;
-            border-radius: 5px;
-            max-height: 200px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 12px;
-            text-align: left;
-        }
-    </style>
+    <title>P.E.G.A.S.U.S</title>
+    <link rel="stylesheet" href="frontend/style.css">
 </head>
 
 <body>
-    <h1>📱 ESP32 Orientation Control</h1>
+    <h1 style="font-size: 48px;">P.E.G.A.S.U.S</h1>
 
     <div id="status" class="status">
-        Ready to start
+        Projectile-Enabled Gyroscopic Aiming & Servo-Utility System
     </div>
 
-    <button id="start_demo">Start Demo</button>
+    <button id="start_demo">Initiate</button>
 
     <div class="data">
-        <h3>Orientation Data</h3>
-        <p>Events sent: <span id="num-observed-events">0</span></p>
-        <p>Successful: <span id="num-success">0</span> | Failed: <span id="num-failed">0</span></p>
+        <h3>Analytics</h3>
+
         <div id="gyroData">
             Alpha (Z-axis): <span id="Orientation_a" class="value">0.00</span>°<br>
             Beta (X-axis): <span id="Orientation_b" class="value">0.00</span>°
@@ -104,127 +29,6 @@
         <div style="color: #888;">Console log will appear here...</div>
     </div>
 
-    <script>
-        let isRunning = false;
-        const demoButton = document.getElementById("start_demo");
-        let successCount = 0;
-        let failCount = 0;
-        let lastSendTime = 0;
-        const SEND_DELAY = 100;
-
-        function log(message, type = 'info') {
-            const logDiv = document.getElementById('log');
-            const time = new Date().toLocaleTimeString();
-            const color = type === 'error' ? '#f44336' : type === 'success' ? '#4CAF50' : '#888';
-            logDiv.innerHTML = `<div style="color: ${color}">[${time}] ${message}</div>` + logDiv.innerHTML;
-            console.log(message);
-        }
-
-        function updateStatus(message, className) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = message;
-            statusDiv.className = 'status ' + className;
-        }
-
-        function incrementEventCount() {
-            const counter = document.getElementById("num-observed-events");
-            counter.innerHTML = parseInt(counter.innerHTML) + 1;
-        }
-
-        function updateFieldIfNotNull(fieldId, value, precision = 2) {
-            if (value != null) {
-                document.getElementById(fieldId).innerHTML = value.toFixed(precision);
-            }
-        }
-
-        function handleOrientation(event) {
-            // Rate limiting: only send if enough time has passed
-            const now = Date.now();
-            if (now - lastSendTime < SEND_DELAY) {
-                return; // Skip this event
-            }
-            lastSendTime = now;
-
-            const alpha = event.alpha || 0;
-            const beta = event.beta || 0;
-            
-            updateFieldIfNotNull('Orientation_a', alpha);
-            updateFieldIfNotNull('Orientation_b', beta);
-            incrementEventCount();
-
-            // Send orientation to Flask server (which forwards to ESP32)
-            fetch('/gyro', {  // Relative URL - automatically uses your ngrok domain
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ alpha, beta })
-            })
-            .then(response => {
-                if (response.ok) {
-                    successCount++;
-                    document.getElementById('num-success').textContent = successCount;
-                    updateStatus('📡 Tracking & sending data...', 'connected');
-                } else {
-                    throw new Error(`Server returned ${response.status}`);
-                }
-            })
-            .catch(err => {
-                failCount++;
-                document.getElementById('num-failed').textContent = failCount;
-                log('POST error: ' + err.message, 'error');
-                updateStatus('⚠️ Tracking but connection error', 'error');
-            });
-        }
-
-        // iOS permission request
-        async function requestPermission() {
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                try {
-                    const perm = await DeviceOrientationEvent.requestPermission();
-                    log('Orientation permission: ' + perm, perm === 'granted' ? 'success' : 'error');
-                    return perm === 'granted';
-                } catch (err) {
-                    log('Permission denied: ' + err, 'error');
-                    alert("Permission denied: " + err);
-                    return false;
-                }
-            }
-            return true; // Android doesn't need permission
-        }
-
-        demoButton.onclick = async function (e) {
-            e.preventDefault();
-
-            if (isRunning) {
-                window.removeEventListener('deviceorientation', handleOrientation);
-                demoButton.innerText = "Start Demo";
-                demoButton.classList.remove('stop');
-                isRunning = false;
-                updateStatus('Stopped', '');
-                log('Demo stopped');
-            } else {
-                const granted = await requestPermission();
-                if (!granted) {
-                    updateStatus('Permission denied', 'error');
-                    return;
-                }
-
-                window.addEventListener('deviceorientation', handleOrientation);
-                demoButton.innerText = "Stop Demo";
-                demoButton.classList.add('stop');
-                isRunning = true;
-                updateStatus('🎯 Starting...', 'tracking');
-                log('Demo started', 'success');
-            }
-        }
-
-        // Test connection on load
-        fetch('/gyro', { method: 'OPTIONS' })
-            .then(() => log('✅ Connected to server', 'success'))
-            .catch(() => log('❌ Cannot reach server', 'error'));
-
-        // Trigger permission request on first click anywhere (iOS requirement)
-        document.body.addEventListener('click', requestPermission, { once: true });
-    </script>
+    <script src ="frontend/demo.js"></script>
 </body>
-
 </html>
