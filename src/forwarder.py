@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, render_template
 import requests
 from flask_cors import CORS
 
@@ -10,7 +10,7 @@ ESP32_IP = "http://172.20.10.2"
 
 @app.route('/')
 def index():
-    return send_file('index.html')  # serve your page at /
+    return render_template('index.html')  # serve your page at /
 
 @app.route("/gyro", methods=["POST", "OPTIONS"])
 def forward_gyro():
@@ -41,6 +41,7 @@ def forward_gyro():
     except Exception as e:
         print(f"Error: {e}")
         return f"Error: {e}", 500
+    
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
