@@ -18,16 +18,18 @@ float yangle_prev = 0;
 float xchange = 0;
 float ychange = 0;
 unsigned long lastUpdate = 0;
+int updateInterval = 100; // start with 120 ms
+const int minInterval = 75;
+const int maxInterval = 200;
 
 // Create servo controller object
-ServoControl servoController(18, 19); // pins 18 and 19
+ServoControl servoController(18, 19, 13); // pins 18, 19, and 13
 
 void handleOrientationData()
 {
   if (server.hasArg("plain"))
   {
     String body = server.arg("plain");
-    Serial.println("Received: " + body);
 
     // Parse JSON properly
     StaticJsonDocument<200> doc;
@@ -46,16 +48,7 @@ void handleOrientationData()
     {
       alpha = doc["alpha"];
       beta = doc["beta"];
-      float xrefAngle = alpha <= 90 ? alpha : 360 - alpha;
-
-      xchange = xrefAngle - xangle_prev;
-      ychange = beta - yangle_prev;
-      // reset the angle
-      xangle_prev = xrefAngle;
-      yangle_prev = beta;
       lastUpdate = millis();
-
-      Serial.printf("✅ Orientation - Alpha: %.2f°, Beta: %.2f°\n", alpha, beta);
 
       // Add CORS headers
       server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -86,6 +79,19 @@ void handleOptions()
   server.send(204);
 }
 
+void handleTrigger()
+{
+  if (server.method() == HTTP_POST)
+  {
+    servoController.fireTrigger();
+    server.send(200, "text/plain", "Bullet fired!");
+  }
+  else
+  {
+    server.send(200, "text/plain", "POST required");
+  }
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -111,6 +117,7 @@ void setup()
   server.on("/", HTTP_GET, handleRoot);
   server.on("/gyro", HTTP_POST, handleOrientationData);
   server.on("/gyro", HTTP_OPTIONS, handleOptions);
+  server.on("/servo", handleTrigger);
 
   server.begin();
   Serial.println("Server started!");
@@ -119,25 +126,37 @@ void setup()
 void loop()
 {
   server.handleClient();
-  static float xalpha = 0; //how much the x is going to move
+  static float xchange = 0; // how much the x is going to move
   static float xrefAngleOld = 0;
-  static float ybeta = 0;
-  float xrefAngleNew = alpha <= 170 ? alpha : alpha-360;
-  // Example: Print data every second if it's being updated
+  static float ychange = 0;
+  static float yrefAngleOld = 0;
+  float xrefAngleNew = alpha <= 178 ? alpha : alpha - 360;
+  float yrefAngleNew = beta <= 178 ? beta : beta - 360;
   static unsigned long lastPrint = 0;
   unsigned long timediff = millis() - lastPrint;
-  if (timediff >= 100 && millis() - lastUpdate < 2000)
+  if (timediff >= updateInterval && millis() - lastUpdate < 2000)
   {
-    xalpha = xrefAngleNew - xrefAngleOld;
+    xchange = xrefAngleNew - xrefAngleOld;
     xrefAngleOld = xrefAngleNew;
-    ybeta = ychange;
-    Serial.printf("📊 Current - Alpha: %.2f°, Beta: %.2f°, XAlpha: %.2f°\n", xrefAngleNew, ybeta, xalpha);
-    servoController.findXSpeed(xalpha);
+    ychange = yrefAngleNew - yrefAngleOld;
+    yrefAngleOld = yrefAngleNew;
+    //Serial.printf("📊 Current - Alpha: %.2f°, Beta: %.2f°, Xchange: %.2f°, Ychange: %.2f°\n", xrefAngleNew, yrefAngleNew, xchange, ychange);
+    servoController.findXSpeed(xchange);
+    servoController.findYSpeed(ychange);
     lastPrint = millis();
-  }
 
-  
-  //servoController.updateServos(); 
+    //--- Dynamic interval adjustment ---
+    if (abs(xchange) > 2 || abs(ychange) > 2)
+    {
+      // Movement is fast → decrease interval for smoother response
+      updateInterval = max(minInterval, updateInterval - 10);
+    }
+    else
+    {
+      // Movement is slow → increase interval to reduce load
+      updateInterval = min(maxInterval, updateInterval + 5);
+    }
+  }
 
   // Timeout indicator
   if (millis() - lastUpdate > 5000 && lastUpdate > 0)
@@ -149,16 +168,4 @@ void loop()
       lastWarning = millis();
     }
   }
-
-  // HERE: Use alpha and beta to control your servos
-  // Example:
-  // if (millis() - lastUpdate < 2000) { // Only if receiving recent data
-  //     int servoXAngle = map(alpha, 0, 360, 0, 180);
-  //     int servoYAngle = map(beta, -90, 90, 40, 140);
-
-  //     servoController.setServoxAngle(servoXAngle);
-  //     servoController.setServoyAngle(servoYAngle);
-  // }
-
-  // servoController.sweep();
 }

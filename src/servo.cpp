@@ -1,9 +1,10 @@
 #include "servo.h"
 
-ServoControl::ServoControl(int servoPin1, int servoPin2)
+ServoControl::ServoControl(int servoPin1, int servoPin2, int servoPin3)
 {
   pin1 = servoPin1;
   pin2 = servoPin2;
+  pin3 = servoPin3;
 }
 
 void ServoControl::begin()
@@ -16,15 +17,11 @@ void ServoControl::begin()
 
   // Attach servos
   servox.attach(pin1);
-  servoy.attach(pin2, 956, 1988); // ±50° from center
-  delay(3000);
+  servoy.attach(pin2);
+  servotrig.attach(pin3);
   Serial.println("Servo control initialized");
+  delay(3000);
 }
-
-// void ServoControl::setServoxRead() {
-//   const int angle = servox.read();
-//   Serial.println(angle);
-// }
 
 // servoX stops at 1490 - 1540!!!
 void ServoControl::setServoxSpeed(int speed)
@@ -40,20 +37,25 @@ void ServoControl::setServoySpeed(int speed)
   servoy.writeMicroseconds(speed);
 }
 
-// void ServoControl::servoxOneDegree() {
-//   servox.writeMicroseconds(1460);
-//   delay(30);
-//   servox.writeMicroseconds(1500);
-// }
-
-// void ServoControl::servoyOneDegree() {
-//   servoy.writeMicroseconds(1480);
-//   delay(30);
-//   servoy.writeMicroseconds(1500);
-// }
-
 void ServoControl::findXSpeed(int angle)
 {
-  //targetSpeedX = constrain(1510 - angle / 0.06, 1300, 1700);
-  servox.writeMicroseconds(1515 - angle/0.06);
+  if (angle > 0)
+    servox.writeMicroseconds(1495 - angle / 0.06);
+  else
+    servox.writeMicroseconds(1535 - angle / 0.06);
+}
+
+void ServoControl::findYSpeed(int angle)
+{
+  if (angle > 0)
+    servoy.writeMicroseconds(1475 - angle / 0.06);
+  else
+    servoy.writeMicroseconds(1535 - angle / 0.06);
+}
+
+void ServoControl::fireTrigger()
+{
+  servotrig.writeMicroseconds(2000);
+  delay(250);
+  servotrig.writeMicroseconds(1500);
 }
