@@ -12,6 +12,7 @@ ESP32_IP = "http://172.20.10.2"
 def index():
     return send_file('index.html')  # serve your page at /
 
+
 @app.route("/gyro", methods=["POST", "OPTIONS"])
 def forward_gyro():
     # Handle preflight OPTIONS request
