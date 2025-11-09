@@ -17,13 +17,4 @@ void setup()
 
 void loop()
 {
-  // Example usage
-  servoController.setServo1Angle(90);
-  delay(1000);
-
-  servoController.setServo2Angle(45);
-  delay(1000);
-
-  servoController.sweep(1); // Sweep servo 1
-  delay(500);
 }
