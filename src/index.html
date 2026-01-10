@@ -141,6 +141,7 @@
             }
         }
 
+        // not used right now
         function fire() {
             fetch('/servo', { method: 'POST' })
                 .then(resp => {
@@ -151,16 +152,16 @@
         }
 
         function handleOrientation(event) {
-            // Rate limiting: only send if enough time has passed
+            // rate limiting
             const now = Date.now();
             if (now - lastSendTime < SEND_DELAY) {
-                return; // Skip this event
+                return;
             }
 
             const alpha = event.alpha || 0;
             const beta = event.beta || 0;
 
-            // Skip sending if movement is very small
+            // skip sending if movement is very small
             if (Math.abs(alpha - lastAlpha) < 1 && Math.abs(beta - lastBeta) < 1) {
                 return;
             }
@@ -174,8 +175,8 @@
             updateFieldIfNotNull('Orientation_b', beta);
             incrementEventCount();
 
-            // Send orientation to Flask server (which forwards to ESP32)
-            fetch('/gyro', {  // Relative URL -
+            // send orientation data to flask server
+            fetch('/gyro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ alpha, beta })
@@ -197,7 +198,7 @@
                 });
         }
 
-        // iOS permission request
+        // ios permission request
         async function requestPermission() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                 try {
@@ -210,7 +211,7 @@
                     return false;
                 }
             }
-            return true; // Android doesn't need permission
+            return true;
         }
 
         demoButton.onclick = async function (e) {
@@ -239,12 +240,10 @@
             }
         }
 
-        // Test connection on load
         fetch('/gyro', { method: 'OPTIONS' })
             .then(() => log('✅ Connected to server', 'success'))
             .catch(() => log('❌ Cannot reach server', 'error'));
 
-        // Trigger permission request on first click anywhere (iOS requirement)
         document.body.addEventListener('click', requestPermission, { once: true });
     </script>
 </body>

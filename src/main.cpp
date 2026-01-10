@@ -5,12 +5,12 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
 
-const char *ssid = "[wifi-network]";
-const char *password = "[wifi-password]";
+const char *ssid = "DanielZh";
+const char *password = "googoogaga1";
 
 WebServer server(80);
 
-// Store latest gyro data
+// Store gyro data
 float alpha = 0;
 float beta = 0;
 float xangle_prev = 0;
@@ -22,7 +22,6 @@ int updateInterval = 120; // start with 120 ms
 const int minInterval = 100;
 const int maxInterval = 200;
 
-// Create servo controller object
 ServoControl servoController(18, 19, 13); // pins 18, 19, and 13
 
 void handleOrientationData()
@@ -31,7 +30,6 @@ void handleOrientationData()
   {
     String body = server.arg("plain");
 
-    // Parse JSON properly
     StaticJsonDocument<200> doc;
     DeserializationError error = deserializeJson(doc, body);
 
@@ -43,14 +41,12 @@ void handleOrientationData()
       return;
     }
 
-    // Extract alpha and beta from JSON
     if (doc.containsKey("alpha") && doc.containsKey("beta"))
     {
       alpha = doc["alpha"];
       beta = doc["beta"];
       lastUpdate = millis();
 
-      // Add CORS headers
       server.sendHeader("Access-Control-Allow-Origin", "*");
       server.send(200, "text/plain", "OK");
     }
@@ -140,20 +136,20 @@ void loop()
     xrefAngleOld = xrefAngleNew;
     ychange = yrefAngleNew - yrefAngleOld;
     yrefAngleOld = yrefAngleNew;
-    //Serial.printf("📊 Current - Alpha: %.2f°, Beta: %.2f°, Xchange: %.2f°, Ychange: %.2f°\n", xrefAngleNew, yrefAngleNew, xchange, ychange);
+    Serial.printf("📊 Current - Alpha: %.2f°, Beta: %.2f°, Xchange: %.2f°, Ychange: %.2f°\n", xrefAngleNew, yrefAngleNew, xchange, ychange);
     servoController.findXSpeed(xchange);
     servoController.findYSpeed(ychange);
     lastPrint = millis();
 
-    //--- Dynamic interval adjustment ---
+    // dynamic interval adjustment
     if (abs(xchange) > 2 || abs(ychange) > 2)
     {
-      // Movement is fast → decrease interval for smoother response
+      // decrease interval if movement is fast
       updateInterval = max(minInterval, updateInterval - 10);
     }
     else
     {
-      // Movement is slow → increase interval to reduce load
+      // increase interval if Movement is slow
       updateInterval = min(maxInterval, updateInterval + 5);
     }
   }
