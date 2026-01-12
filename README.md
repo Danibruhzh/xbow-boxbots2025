@@ -1,7 +1,7 @@
-## 🤖 Clash Royal XBow
+## 🤖 Clash Royale XBow
 
 ### 🚀 Overview  
-Clash Royal XBow is a hackathon robotics project built for **BoxBots 2025**. The goal of the project was to design, build, and program a functional robot under tight time constraints using embedded systems and a clean, modular software architecture. This repository contains all firmware, configuration files, and supporting code used during the competition.
+Clash Royale XBow is a hackathon robotics project built for **BoxBots 2025**. The goal of the project was to design, build, and program a functional robot under tight time constraints using embedded systems and a clean, modular software architecture. This repository contains all firmware, configuration files, and supporting code used during the competition.
 
 ### ✨ Features  
 - Embedded firmware written in C++  
