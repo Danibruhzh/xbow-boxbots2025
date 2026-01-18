@@ -49,9 +49,4 @@ Clash Royale XBow is a hackathon robotics project built for **BoxBots 2025**. Th
 This project was created for **BoxBots 2025**, a robotics hackathon where teams rapidly prototype and program robots using creative materials and embedded systems, focusing on problem solving, engineering fundamentals, and teamwork.
 
 ### 👥 Team  
-Built by the **xbow** team for BoxBots 2025.
-
-### 📜 License  
-No license specified. All rights reserved unless otherwise stated.
-
-
+Built by the **Clash Royale Xbow** team for BoxBots 2025.
