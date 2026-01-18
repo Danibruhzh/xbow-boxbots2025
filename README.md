@@ -54,7 +54,4 @@ Built by the **xbow** team for BoxBots 2025.
 ### 📜 License  
 No license specified. All rights reserved unless otherwise stated.
 
-### 🎥 Live Demo
-
-https://github.com/user-attachments/assets/ced5b1ca-14df-4d06-8a34-e0c839553e74
 
